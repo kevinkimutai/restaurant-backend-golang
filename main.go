@@ -2,6 +2,7 @@ package main
 
 import (
 	"golang-restaurant-backend/routes"
+	"log"
 	"os"
 
 	//"go.mongodb.org/mongo-driver/mongo"
@@ -14,7 +15,11 @@ import (
 
 func main() {
 
-     db.DbConnect()
+    client, err := db.DbConnect()
+     if err != nil {
+		log.Fatal(err)
+		return
+	}
 
      port:=os.Getenv("PORT")
 

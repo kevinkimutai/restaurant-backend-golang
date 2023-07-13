@@ -2,42 +2,32 @@ package db
 
 import (
 	"context"
-	"fmt"
 	"log"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// Replace the placeholder with your Atlas connection string
-const uri = "<connection-string>"
+// DbConnect establishes a connection to a MongoDB server
+func DbConnect() (*mongo.Client, error) {
+	// Set client options
+	clientOptions := options.Client().ApplyURI("YOUR_ATLAS_CONNECTION_STRING")
 
-
-
-
-func DbConnect() {
-
-	// Use the SetServerAPIOptions() method to set the Stable API version to 1
-	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
-	opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
-
-	// Create a new client and connect to the server
-	client, err := mongo.Connect(context.TODO(), opts)
-
+	// Connect to MongoDB
+	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		log.Fatal(err)
+		return nil, err
 	}
-	defer func() {
-		if err = client.Disconnect(context.TODO()); err != nil {
-			log.Fatal(err)
-		}
-	}()
 
-	// Send a ping to confirm a successful connection
-	var result bson.M
-	if err := client.Database("admin").RunCommand(context.TODO(), bson.D{{"ping", 1}}).Decode(&result); err != nil {
+	// Ping the MongoDB server to verify the connection
+	err = client.Ping(context.TODO(), nil)
+	if err != nil {
 		log.Fatal(err)
+		return nil, err
 	}
-	fmt.Println("successfully connected to MongoDB!")
+
+	log.Println("Connected to MongoDB!")
+
+	return client, nil
 }
